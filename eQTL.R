@@ -63,7 +63,7 @@ rownames(data) <- indv[,1]
 colnames(data) <- paste(pos[,1],pos[,2],sep=".")
 
 data <- data[,!apply(data,2,function(x)any(-1%in%x)), drop=F] 			  ## get rid of SNPs with any missing data (-1) 
-exp <- exp[which(substr(rownames(exp),1,15) %in% genes),]                                 ## subset correct genes
+exp <- exp[substr(rownames(exp),1,15) %in% genes,]                                 ## subset correct genes
 
 data <- data[which(substr(rownames(data),1,9) %in% substr(colnames(exp),1,9)),]           ## only keep genotypes for samples that are in the expression data
 
