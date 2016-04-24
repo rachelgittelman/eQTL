@@ -65,10 +65,9 @@ colnames(data) <- paste(pos[,1],pos[,2],sep=".")
 data <- data[,!apply(data,2,function(x)any(-1%in%x)), drop=F] 			  ## get rid of SNPs with any missing data (-1) 
 exp <- exp[substr(rownames(exp),1,15) %in% genes,]                                 ## subset correct genes
 
-data <- data[which(substr(rownames(data),1,9) %in% substr(colnames(exp),1,9)),]           ## only keep genotypes for samples that are in the expression data
+data <- data[substr(rownames(data),1,9) %in% substr(colnames(exp),1,9),]           ## only keep genotypes for samples that are in the expression data
 
 order_of_exp <- match(substr(rownames(data), 1,9), substr(names(exp), 1,9))
-missing_in_data <- which(is.na(order_of_exp) == TRUE)
 exp <- exp[,order_of_exp[!(is.na(order_of_exp))]]                                         ## now reorder the expression data so that columns correspond to rows in the genotype data
 
 print(dim(data))
@@ -120,7 +119,8 @@ associations <- do.call(rbind, apply(exp, 1, gene_associations, genotypes=data))
 ##########################################################################################
 
 set.seed(1)
-empirical_null <- replicate(nper, apply(exp, 1, gene_associations, genotypes=data[sample(1:nrow(data)),], real=F), simplify=T)
+empirical_null <- replicate(nper, apply(exp, 1, gene_associations, 
+				  genotypes=data[sample(1:nrow(data)),], real=F), simplify=T)
 
 ##########################################################################################
 ## make sure data is in correct format to write out
