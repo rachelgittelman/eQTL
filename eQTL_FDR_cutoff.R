@@ -18,13 +18,14 @@ GTEx_sig_permute <- function(info, dataframe, fdr=0.05)
 	## permutation data. It will return just the significant results.
 	
 	actual_fdr=0.5
-	cutoffs <- c(0.05,rev(sort(info[,4][which(info[,4]<= 0.05)])))                        ## The only possible P value cutoffs are the collection of real P values below 0.05
+	cutoffs <- c(0.05,sort(info[,4][info[,4] <= 0.05],dec=TRUE))                               ## The only possible P value cutoffs are the collection of real P values below 0.05
 	cutoff_ind <- 1
 	cutoff <- cutoffs[cutoff_ind]
-	while(actual_fdr > fdr & length(which(info[,4] <= cutoff)) > 0)
+	while(actual_fdr > fdr & sum(info[,4] <= cutoff) > 0)
 	{
-		sig <- length(which(info[,4]<=cutoff))
-		prop_sig_permute <- length(which(unlist(dataframe[,2:ncol(dataframe)]) <= cutoff))/ncol(dataframe)
+		sig <- sum(info[,4]<=cutoff)
+		prop_sig_permute <- sum(unlist(dataframe[,2:ncol(dataframe)]) <= cutoff) /
+						    ncol(dataframe)
 		actual_fdr <- prop_sig_permute/sig
 		cutoff_ind <- cutoff_ind + 1
 		cutoff <- cutoffs[cutoff_ind]
@@ -32,7 +33,7 @@ GTEx_sig_permute <- function(info, dataframe, fdr=0.05)
 	cutoff_ind <- max(1, cutoff_ind-1)
 	if(actual_fdr <= 0.05)
 	{
-		return(info[which(info[,4] <= cutoffs[cutoff_ind]),, drop=F][,1:4])
+		return(info[info[,4] <= cutoffs[cutoff_ind],1:4, drop=F])
 	}
 }
 
@@ -40,5 +41,6 @@ sig_associations <- GTEx_sig_permute(data[,1:4],data[,5:ncol(data)])
 
 if(length(sig_associations) != 0)
 {
-	write.table(sig_associations, file=paste(data_file,".sig_FDR_0.05",sep=""), append=T, sep="\t", quote=F, col.names=F, row.names=F)
+	write.table(sig_associations, file=paste(data_file,".sig_FDR_0.05",sep=""), append=T,
+			    sep="\t", quote=F, col.names=F, row.names=F)
 }
